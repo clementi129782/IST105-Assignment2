@@ -5,9 +5,16 @@
         $c = escapeshellarg($_GET["c"]);
 
         $command = "python3 /var/www/html/calculate.py $a $b $c";
+        error_log("Executing command: $command");
+
         $result = shell_exec($command);
+        error_log("Result from python: $result");
 
         $decoded_results = json_decode($result, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON decode error: " . json_last_error_msg());
+            $error = "Internal error: Invalid JSON returned from Python.";
+        }
 
         if (isset($decoded_results['error'])) {
             $error = $decoded_results['error'];
